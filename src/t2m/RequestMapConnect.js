@@ -9,6 +9,9 @@ async function requestEndpoint(enpointIdentifier, data = {}, {
     maxRetries = 3,
     waitBeforeRetry = 1000,
 } = {}) {
+    if (data === "") {
+        data = {}
+    }
     var succeeded = false;
     while (maxRetries >= 0 && succeeded === false) {
         try {

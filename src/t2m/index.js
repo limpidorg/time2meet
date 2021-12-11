@@ -19,24 +19,36 @@ class T2MClient {
         )
         if (handleErrors) {
             if (responseData.code < 0) {
-                if (await this.handleError(enpointIdentifier, data, responseData) === true) {
-                    return responseData
-                } else {
-                    throw new Error("An error occured during the request and it could not be handled")
+                try {
+                    return await this.handleError(enpointIdentifier, data, responseData)
+                } catch (e) {
+                    // Reject
+                    throw e
                 }
             }
         }
         await this.postRequest(enpointIdentifier, data, responseData)
         return responseData
     }
-    
+
     endpoint(endpointIdentifier, options) {
         return async (data) => {
             return this.request(endpointIdentifier, data, options)
         }
     }
     async handleError(endpointIdentifier, data, responseData) {
-        // Nope
+        switch (responseData.code) {
+            case -200:
+                // Token expired
+                console.log("Invalid Token")
+                break
+            default:
+                break
+        }
+        // Default: Not handled.
+        throw new Error(responseData.message)
+
+
     }
 
     async postRequest(enpointIdentifier, data, responseData) {
@@ -47,6 +59,14 @@ class T2MClient {
             localStorage.removeItem("token")
             localStorage.removeItem("userId")
         }
+    }
+
+    async login(email, password) {
+        return this.request("login", { email, password })
+    }
+
+    async logout() {
+        return this.request("logout")
     }
 }
 
